@@ -1,0 +1,209 @@
+<html>
+	<head>
+		<link href="https://s3.amazonaws.com/codecademy-content/courses/ltp/css/shift.css" rel="stylesheet">
+    
+    	<link rel="stylesheet" href="https://s3.amazonaws.com/codecademy-content/courses/ltp/css/bootstrap.css">
+    	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    	<link rel="stylesheet" href="main.css">
+    	<style>
+ 
+		</style>
+    	<script src="https://www.gstatic.com/firebasejs/3.1.0/firebase.js">
+
+    	</script>
+			
+			<script>
+			  // Initialize Firebase
+			  var config = {
+			    apiKey: "AIzaSyCtMN4Hxa0te8Q3w5iwzgtn3neohBLotwM",
+			    authDomain: "datadollars-c5053.firebaseapp.com",
+			    databaseURL: "https://datadollars-c5053.firebaseio.com",
+			    storageBucket: "datadollars-c5053.appspot.com",
+			  };
+			  firebase.initializeApp(config);
+			</script>	
+    	
+    	<script>
+    		$(document).ready(function(){
+    			$('#menu').load('navbar.html');
+    		});
+			var myFirebaseRef = firebase.database();
+			var user = firebase.auth().currentUser;
+			//myFirebaseRef.onAuth(function(authData) {
+			firebase.auth().onAuthStateChanged(function(user){
+				if (user){
+					console.log("Authenticated with uid",user.uid);
+
+					var signUpForm = document.getElementById('signup-form');
+					var signupSuccess = document.getElementById('signup-success');
+		   		    var signupError = document.getElementById('signup-error');	
+					var sendBtn = document.getElementById('sendBtn');
+
+					var onSignupComplete = function(error) {
+						console.log("hi!");
+		      		 	//sendBtn.disabled = false;
+		      			if (error) {
+		        			//signupError.innerHTML = 'Sorry. Could not signup.';
+		        			document.write("error");
+		        			      			} else {
+		        			//signupSuccess.innerHTML = 'Thanks for signing up!';
+		        			window.location="signUp2.html";
+		      				  // hide the form
+		        			//signUpForm.style.display = 'none';
+		      			}
+		    		};
+
+					
+				}
+				else{
+					window.location="login.html";
+					console.log("authentication failed login again");
+					
+				}
+			}, function(error){
+				console.log(error);
+			});
+			 var onSignupComplete = function(error) {
+					console.log("hi!");
+	      		 	//sendBtn.disabled = false;
+	      			if (error) {
+	        			//signupError.innerHTML = 'Sorry. Could not signup.';
+	        			document.write("error");
+	        			      			} else {
+	        			//signupSuccess.innerHTML = 'Thanks for signing up!';
+	        			window.location="signUp2.html";
+	      				  // hide the form
+	        			//signUpForm.style.display = 'none';
+	      			}
+	    		};
+	    	function sendMessage(formObj) {
+						var myFirebaseRef=firebase.database();
+						var user=firebase.auth().currentUser;
+						var uid=user.uid;
+						console.log(uid);
+
+						console.log("SENDING MESSAGE");
+						var currentOrgRef=firebase.database().ref("/users/"+uid+"/currentOrg");
+	
+						var orgUser=firebase.database().ref("/organizations/"+formObj.orgname.value.toLowerCase()+"/users/"+uid);
+						
+						var orgData=firebase.database().ref("/organizations/"+formObj.orgname.value.toLowerCase()+"/data");
+						
+						var orgAdmin=firebase.database().ref("/organizations/"+formObj.orgname.value.toLowerCase()+"/admin/"+uid);
+
+						var userGroup=firebase.database().ref("/users/"+uid+"/groups/"+formObj.orgname.value.toLowerCase());
+
+						var userAdmin=firebase.database().ref("/users/"+uid+"/admin/"+formObj.orgname.value.toLowerCase());
+
+						var userInfo=firebase.database().ref("/users/"+uid+"admin")
+     						
+     						userAdmin.set(true);
+							userGroup.set(true);
+							orgUser.set(true);
+							orgAdmin.set(true);
+							currentOrgRef.set(formObj.orgname.value.toLowerCase());
+							localStorage.setItem("currentOrg",formObj.orgname.value.toLowerCase());
+							//var message=myFirebaseRef.set();
+							orgData.set({
+							orgname:formObj.orgname.value,
+							
+							website:formObj.website.value,
+							
+							address:formObj.address.value,
+							
+							adminName:formObj.adminName.value,
+							
+							phoneNumber:formObj.phoneNumber.value,
+							
+							email:formObj.email.value,
+							
+							//missionExplaination:formObj.missionExplaination.value,
+							
+							//programDescription:formObj.programDescription.value,
+							
+							//describePeople:formObj.describePeople.value,
+							
+							//describeLocation:formObj.describeLocation.value,
+							
+							//feedback:formObj.feedback.value
+							
+							//appFeedback:formObj.appFeedback.value,
+							
+							//locationService:formObj.locationService.value
+
+						}).then(onSignupComplete);
+						//sendBtn.disabled=true;*/
+						//window.location="signUp2.html";
+						console.log("next page");
+						return false;
+					}
+		</script>
+	</head>
+
+	<body>
+	<div id="menu">
+	</div>
+
+	<div class="signup"><center><div class="container">
+	    <h1>Sign Up for Let's Link</h1>
+	    <p id="signup-success" class="text-success"></p>
+    	<p id="signup-error" class="text-danger"></p><div class="well">
+			<form class="contact-form" id="signup-form" role="form" onsubmit="return sendMessage(this)">
+			  Organization name:<br>
+			 	 <input type="text" name="orgname" required></br> 
+
+		 	 Website (optional):<br>
+		  		<input type="text" name="website"></br>
+
+
+			  Address:<br>
+			  	 <input type="text" name="address" required></br>
+
+			  Person to Contact:<br>
+			 	 <input type="text" name="adminName" required></br>
+			  
+			  Contact's phone number:<br>
+			 	 <input type="text" name="phoneNumber" required></br>
+
+			  Contact email:<br>
+			 	 <input type="text" name="email" required></br>
+
+			  <!--Mission Statement (purpose of organization):<br>
+			 	 <input type="text" name="missionExplaination"></br>
+
+			  Program description:<br>
+			  		<input type="text" name="programDescription"></br>
+
+			  People of Interest:<br>
+			  		<input type="text" name="describePeople"></br>
+
+			  Target Location:<br>
+			  		<input type="text" name="describeLocation"></br>
+
+			  Target age:<br>
+			  		<input type="text" name="describeAge"></br>
+
+			  Additional Feedback:<br>
+			  		<input type="text" name="feedback"></br><br>
+
+			  <!--Features wanted in app: <br>
+			
+			  <input type="checkbox" name="notifications">Notifications<br>
+			  <input type="checkbox" name="contentUpdate">Content Update<br>
+			  <input type="checkbox" name="locationServices">Location Services <br>
+
+			  Custom: <input type="text" name="appFeedback"></br><br>-->
+
+			  
+			  <input type="submit" value="Submit" id="sendBtn">
+
+
+			</form></div>
+
+</body>
+				 
+     </center>
+   	</div>
+
+	</body>
+</html>

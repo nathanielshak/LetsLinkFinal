@@ -1,0 +1,90 @@
+.nav a {
+  color: #5a5a5a;
+  font-size: 11px;
+  font-weight: bold;
+  padding: 14px 10px;
+  text-transform: uppercase;
+}
+
+.nav li{
+  display: inline;
+}
+
+.container {
+  background-color:white;
+}
+
+.jumbotron {
+  background-image:url('https://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2014/03/data-flow-730x382.jpg');
+  height: 500px;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.jumbotron .container {
+  position: relative;
+  top:100px;
+}
+
+.jumbotron h1 {
+  color: #fff;
+  font-size: 48px;  
+  font-family: 'Shift', sans-serif;
+  font-weight: bold;
+}
+
+.jumbotron p {
+  font-size: 20px;
+  color: #fff;
+}
+
+.learn-more {
+  background-color: #f7f7f7;
+}
+
+.learn-more h3 {
+  font-family: 'Shift', sans-serif;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.learn-more a {
+  color: #00b0ff;
+}
+
+.neighborhood-guides {
+    background-image:#efefef;
+    border-bottom:1px solid #dbdbdb;
+}
+
+.neighborhood-guides h2 {
+    color:#399c3d;
+    font-size:24px;
+}
+
+#button {
+    color: white;
+}
+
+.neighborhood-guides p {
+    font-size:15px
+    margin-bottom:13px
+}
+
+input[type=text] {
+    width: 25%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    box-sizing: border-box;
+    border: none;
+    background-color:white;
+    color: black;
+  } 
+ 
+ body{  
+  background-color:lightblue;
+ }
+
+
+
+

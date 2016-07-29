@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <link href="https://s3.amazonaws.com/codecademy-content/courses/ltp/css/shift.css" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://s3.amazonaws.com/codecademy-content/courses/ltp/css/bootstrap.css">
+    <link rel="stylesheet" href="main.css">
+
+    <title>Login</title>
+
+    <script src="https://www.gstatic.com/firebasejs/3.1.0/firebase.js"></script>
+    <script>
+      //Initialize Firebase
+      var config = {
+        apiKey: "AIzaSyCtMN4Hxa0te8Q3w5iwzgtn3neohBLotwM",
+        authDomain: "datadollars-c5053.firebaseapp.com",
+      
+        databaseURL: "https://datadollars-c5053.firebaseio.com",
+        storageBucket: "datadollars-c5053.appspot.com",
+      };
+      firebase.initializeApp(config);
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/ui/live/0.4/firebase-ui-auth.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/live/0.4/firebase-ui-auth.css" />
+    <script type="text/javascript">
+      // FirebaseUI config.
+      var uiConfig = {
+        'signInSuccessUrl': 'signUp.html',
+        'signInOptions': [
+          // Leave the lines as is for the providers you want to offer your users.
+          //firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+          //firebase.auth.FacebookAuthProvider.PROVIDER_ID,
+          //firebase.auth.TwitterAuthProvider.PROVIDER_ID,
+          //firebase.auth.GithubAuthProvider.PROVIDER_ID,
+          firebase.auth.EmailAuthProvider.PROVIDER_ID
+        ],
+        // Terms of service url.
+        //'tosUrl': '<your-tos-url>',
+      };
+
+      // Initialize the FirebaseUI Widget using Firebase.
+      var ui = new firebaseui.auth.AuthUI(firebase.auth());
+      // The start method will wait until the DOM is loaded.
+      ui.start('#firebaseui-auth-container', uiConfig);
+    </script>
+  </head>
+  <body>
+     <div class="nav">
+      <div class="container">
+        <ul class="pull-left">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About</a></li>
+        </ul>
+        <ul class="pull-right">
+          <li><a href="Login.html">Log In/Sign Up</a></li>
+          <!--<li><a href="#">Log In</a></li>-->
+          <!--<li><a href="#">Search Non-Profits</a></li>-->
+          <li><a href="#">Help</a></li>
+        </ul>
+      </div>
+    </div>
+
+      <h1><center>Welcome to Let's Link!</center></h1>
+      <div id="firebaseui-auth-container"></div>
+  </body>
+</html>

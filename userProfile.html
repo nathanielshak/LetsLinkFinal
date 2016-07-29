@@ -1,0 +1,387 @@
+<html>
+<head>
+  <link href="https://s3.amazonaws.com/codecademy-content/courses/ltp/css/shift.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://s3.amazonaws.com/codecademy-content/courses/ltp/css/bootstrap.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="https://code.highcharts.com/highcharts.js"></script>
+  <script src="https://code.highcharts.com/highcharts-more.js"></script>
+
+  <script src="https://code.highcharts.com/modules/solid-gauge.js"></script>
+
+  <link rel="stylesheet" href="main.css">
+  <script src="https://www.gstatic.com/firebasejs/3.1.0/firebase.js"></script>
+  <script>
+        // Initialize Firebase
+        var config = {
+          apiKey: "AIzaSyCtMN4Hxa0te8Q3w5iwzgtn3neohBLotwM",
+          authDomain: "datadollars-c5053.firebaseapp.com",
+          databaseURL: "https://datadollars-c5053.firebaseio.com",
+          storageBucket: "datadollars-c5053.appspot.com",
+        };
+        firebase.initializeApp(config);
+        </script>
+        <script>
+        $(document).ready(function(){
+          $('#menu').load('navbar.html');
+        });
+        var myFirebaseRef=firebase.database();
+        var user = firebase.auth().currentUser;
+        //var currentOrg=firebase.database().ref("users/"+user.uid+"/currentOrg");
+      //myFirebaseRef.onAuth(function(authData) {
+        firebase.auth().onAuthStateChanged(function(user){
+          if (user){
+            console.log("Authenticated with uid",user.uid);
+            firebase.database().ref("users/"+user.uid+"/currentOrg").once('value').then(function(snapshot){
+              var Org=snapshot.val();
+              returnOrg(Org);
+            });
+            function returnOrg(currentOrg){
+              console.log(currentOrg);
+              myFirebaseRef.ref("organizations/"+currentOrg+"/data").on('child_added',function(snapshot){
+          
+                  var data=snapshot.val();
+                  var key=snapshot.key;
+                  //document.write(key+": ");
+                  //document.write(data+"<br></br>");
+                  console.log(key);
+                  console.log(data);
+                 document.getElementById("box").innerHTML+=(key+": "+data+"<br>");                
+              });
+              function roundDate(timeStamp){
+                timeStamp -=timeStamp % (24 * 60 * 60 * 1000);
+                timeStamp += new Date().getTimezoneOffset()* 60 *1000;
+                return new Date(timeStamp);
+              }
+              var ref = firebase.database().ref("/organizations/streetcode/visits");
+              console.log(ref);
+              var chartdataRef=firebase.database().ref("/organizations/streetcode/chartdata");
+              var totalHoursRef=firebase.database().ref("/organizations/streetcode/totalHours");
+              list={};
+              var current=0;
+              ref.orderByChild("CheckInTimestamp").limitToFirst(1).on("child_added", function(snapshot){
+                var roundTime=roundDate(snapshot.val().CheckInTimestamp*1000);
+                var firstTime=roundTime.toString();
+                list[firstTime]=0;
+                current=roundTime+1;       
+              });
+              ref.orderByChild("CheckInTimestamp").limitToLast(1).on("child_added", function(snapshot){
+                var roundTime=roundDate(snapshot.val().CheckInTimestamp*1000);
+                var lastTime=roundTime.toString();
+                 while (current<roundTime){
+                    list[current.toString()]=0;
+                    current+=1;
+                 }
+                    list[lastTime]=0;
+
+              });
+              var totalTime=0
+              ref.orderByChild("CheckInTimestamp").on("child_added", function(snapshot) {
+                console.log(snapshot.key + " is " + snapshot.val().CheckInTimestamp);
+                var readTime=roundDate(new Date(snapshot.val().CheckInTimestamp*1000)).toString(); 
+                console.log(readTime);
+                list[readTime]+=1;
+                console.log(list);
+                chartdataRef.set(list);
+                  if (snapshot.val().VisitDuration!=null){
+                  totalTime+=(snapshot.val().VisitDuration);
+                  };
+                console.log(totalTime);
+                //totalDate=new Date(totalTime);
+             // console.log(totalDate);\
+              totalHours=Math.floor(totalTime/3600);
+              console.log("totalHours="+totalHours);
+              //totalHoursRef.set(totalHours);
+              localStorage.setItem("totalHours",totalHours);
+               });
+              
+          };
+          } else { 
+            window.location="index.html"
+          }
+
+        });
+      //myFirebaseRef.ref("users/"+user.uid+"/groups/pokemon").once('value').then(function(snapshot){
+        //var recentPostRef=firebase.database().ref('posts').limitToLast(100);
+       // var data=snapshot.val();
+       // console.log(data)
+      //});
+$(function () {
+    $.getJSON('https://datadollars-c5053.firebaseio.com/organizations/streetcode/chartdata.json', function (data) {
+        console.log(data);
+        var arr=[];
+        for(each in data){
+          arr.push([each, data[each]]);
+        };
+        console.log(arr);
+       
+        $('#container2').highcharts({
+            chart: {
+                zoomType: 'x'
+            },
+            title: {
+                text: 'Daily Users for Organization'
+            },
+            subtitle: {
+                text: document.ontouchstart === undefined ?
+                        'Click and drag in the plot area to zoom in' : 'Pinch the chart to zoom in'
+            },
+            xAxis: {
+                type: 'datetime',
+                minTickInterval:3600000,
+                dateTimeLabelFormat:{day:'%e.%b'}
+            },
+            yAxis: {
+                title: {
+                    text: 'Daily Vistors'
+                }
+            },
+            legend: {
+                enabled: false
+            },
+            plotOptions: {
+                area: {
+                    fillColor: {
+                        linearGradient: {
+                            x1: 0,
+                            y1: 0,
+                            x2: 0,
+                            y2: 1
+                        },
+                        stops: [
+                            [0, Highcharts.getOptions().colors[0]],
+                            [1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
+                        ]
+                    },
+                    marker: {
+                        radius: 2
+                    },
+                    lineWidth: 1,
+                    states: {
+                        hover: {
+                            lineWidth: 1
+                        }
+                    },
+                    threshold: null
+                }
+            },
+
+            series: [{
+                type: 'area',
+                name: 'Organization Daily Users',
+                data: arr//{"1991-23-11":9,"1991-24-11":5,"1991-25-11":8}//JSON.stringify(data)//([[1991-23-11, 9], [1991-24-11, 5], [1991-25-11, 8]])
+            }]
+        });
+    });
+});
+$(function () { 
+    $('#container3').highcharts({
+        chart: {
+            type: 'pie'
+        },
+        title: {
+            text: 'Exit Rating'
+        },
+        xAxis: {
+            //categories: ['Dates', 'Day', 'Hours']
+        },
+        yAxis: {
+            //title: {
+                //text: 'People in Attendance'
+            //}
+        },
+        series: [{
+            name: 'Rating',
+            data: [{
+                    name:'1',
+                    y:1
+                }, {
+                    name:'2',
+                    y:2
+                },  {
+                     name:'3',
+                     y:7
+                },  {
+                     name:'4',
+                     y:8
+                },  {
+                     name:'5',
+                     y:10
+                }]
+        }]
+        });
+        });
+  $(function () { 
+    $('#container').highcharts({
+        chart: {
+            type: 'Total Number of Hours'
+        },
+        title: {
+            text: 'Organization'
+        },
+        xAxis: {
+            categories: ['Dates', 'Day', 'Hours']
+        },
+        yAxis: {
+            title: {
+                text: 'Hours Spent'
+            }
+        },
+        series: [{
+            name: 'Organization',
+            data: [10,10,10]
+        }, {
+            name: 'Organization',
+            data: [5, 7, 3]
+        }]
+    });
+});
+
+$(function () {
+  console.log("storage shows total Hours as"+localStorage.getItem("totalHours"));
+  var totalHours=[];
+  totalHours.push(parseInt(localStorage.getItem("totalHours")));
+  console.log(totalHours);
+    var gaugeOptions = {
+
+        chart: {
+            type: 'solidgauge'
+        },
+
+        title: { text:'Hours Spent At StreetCode!'},
+
+        pane: {
+            center: ['50%', '70%'],
+            size: '100%',
+            startAngle: -90,
+            endAngle: 90,
+            background: {
+                backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || '#EEE',
+                innerRadius: '60%',
+                outerRadius: '100%',
+                shape: 'arc'
+            }
+        },
+
+
+        tooltip: {
+            enabled: false
+        },
+
+        // the value axis
+        yAxis: {
+            stops: [
+                [0.1, '#030303'], // black
+                [0.5, '#BEBEBE'], // gray
+                [0.9, '#00B2EE'] // blue
+            ],
+            lineWidth: 0,
+            minorTickInterval: 2,
+            tickAmount: 2,
+            title: {
+                y: -70
+            },
+            labels: {
+                y: 16
+            }
+        },
+
+        plotOptions: {
+            solidgauge: {
+                dataLabels: {
+                    y: 5,
+                    borderWidth: 0,
+                    useHTML: true
+                }
+            }
+        }
+    };
+
+    // The speed gauge
+    $('#container-speed').highcharts(Highcharts.merge(gaugeOptions, {
+        yAxis: {
+            min: 0,
+            max: 20,
+            title: {
+                text: 'Hours'
+            },
+            tickInterval:1
+        },
+
+        credits: {
+            enabled: false
+        },
+
+        series: [{
+            name: 'Speed',
+            data: totalHours,
+            dataLabels: {
+                format: '<div style="text-align:center"><span style="font-size:25px;color:' +
+                    ((Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black') + '">{y}</span><br/>' +
+                       '<span style="font-size:12px;color:silver">hrs</span></div>'
+            },
+            tooltip: {
+                valueSuffix: ' hours'
+            }
+        }]
+
+    }));
+
+    // The RPM gauge
+    $('#container-rpm').highcharts(Highcharts.merge(gaugeOptions, {
+        yAxis: {
+            min: 0,
+            max: 5,
+            title: {
+                text: 'hours'
+            }
+        },
+
+        series: [{
+            name: 'RPM',
+            data: [1],
+            dataLabels: {
+                format: '<div style="text-align:center"><span style="font-size:25px;color:' +
+                    ((Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black') + '">{y:.1f}</span><br/>' +
+                       '<span style="font-size:12px;color:silver">* 1000 / min</span></div>'
+            },
+            tooltip: {
+                valueSuffix: ' revolutions/min'
+            }
+        }]
+
+    }));
+
+
+});
+</script>
+
+
+
+
+
+
+</head>
+
+
+
+
+<body id="body">
+	<div id="menu">
+  </div>
+  <div class="container"><center><h1>Your Organization's Data</h1><div id= "container2" style="width:100%; height:400px;"></div></div>
+</div><div class="container"><center>
+<div class="well">
+  <div class="row"><div class="col-md-4"><div id="box" class="panel panel-default"><h2>Registration Info</h2></div></div><div class="col-md-4"><div id="container3" style="width:100%; height:400px;"></div></div><div class="col-md-4"><div id="container-speed" class="panel panel-default"><h2>stats here</h2></div></div></div>
+  
+
+</div>
+
+
+  </div>
+<!--<button type="button">create form!</button>-->
+
+
+</center></div>
+</body>
+</html>
